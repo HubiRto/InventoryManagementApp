@@ -23,6 +23,6 @@ public class ProductImage {
     @Column(name = "image_data", length = 1024)
     private byte[] image;
 
-    @OneToOne(mappedBy = "image")
+    @OneToOne(mappedBy = "image", fetch = FetchType.LAZY)
     private Product product;
 }

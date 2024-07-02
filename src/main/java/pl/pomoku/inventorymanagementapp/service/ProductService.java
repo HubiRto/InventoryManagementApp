@@ -46,7 +46,11 @@ public class ProductService {
         return productRepository.save(request.mapToEntity(category));
     }
 
+    @Transactional
     public void deleteProduct(Long id) {
+        if(!productRepository.existsById(id)){
+            throw new ProductNotFoundException(id);
+        }
         productRepository.deleteById(id);
     }
 
