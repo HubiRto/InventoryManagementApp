@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pl.pomoku.inventorymanagementapp.dto.request.AddProductRequest;
+import pl.pomoku.inventorymanagementapp.dto.response.ProductResponse;
 import pl.pomoku.inventorymanagementapp.entity.Product;
 import pl.pomoku.inventorymanagementapp.exception.AppException;
 import pl.pomoku.inventorymanagementapp.service.ProductService;
@@ -21,18 +22,18 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public List<Product> getAllProducts() {
-        return productService.getAllProducts();
+    public List<ProductResponse> getAllProducts() {
+        return productService.getAllProducts().stream().map(Product::mapToDto).toList();
     }
 
     @GetMapping("/{productId}")
-    public ResponseEntity<Product> getProductById(@PathVariable Long productId) {
-        return ResponseEntity.ok(productService.getProductById(productId));
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long productId) {
+        return ResponseEntity.ok(productService.getProductById(productId).mapToDto());
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Product> addProduct(@RequestBody AddProductRequest request) {
-        return new ResponseEntity<>(productService.saveProduct(request), HttpStatus.CREATED);
+    public ResponseEntity<ProductResponse> addProduct(@RequestBody AddProductRequest request) {
+        return new ResponseEntity<>(productService.saveProduct(request).mapToDto(), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{productId}")

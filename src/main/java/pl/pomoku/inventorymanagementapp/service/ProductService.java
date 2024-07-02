@@ -1,5 +1,6 @@
 package pl.pomoku.inventorymanagementapp.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,6 +50,7 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
+    @Transactional
     public void saveProductImage(Long id, MultipartFile file) throws IOException {
         Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
         ProductImage productImage = productImageRepository.findByProductId(id).orElseGet(ProductImage::new);

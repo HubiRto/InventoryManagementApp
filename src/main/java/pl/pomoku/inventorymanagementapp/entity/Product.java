@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pl.pomoku.inventorymanagementapp.dto.response.ProductResponse;
 
 import java.math.BigDecimal;
 
@@ -27,6 +28,10 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private ProductImage image;
+
+    public ProductResponse mapToDto() {
+        return new ProductResponse(this.id, this.name, this.description, this.quantity, this.price, this.category.getName());
+    }
 }
