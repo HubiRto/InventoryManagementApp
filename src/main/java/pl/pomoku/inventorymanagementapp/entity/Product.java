@@ -1,15 +1,29 @@
 package pl.pomoku.inventorymanagementapp.entity;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public class Products {
+import java.math.BigDecimal;
+
+@Data
+@Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    @Column(columnDefinition = "TEXT")
     private String description;
     private int quantity;
-    private double price;
+    private BigDecimal price;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 }

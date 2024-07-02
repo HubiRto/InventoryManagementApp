@@ -1,10 +1,21 @@
 package pl.pomoku.inventorymanagementapp.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
-public class Orders {
+@Data
+@Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "orders")
+public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
