@@ -11,10 +11,13 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import pl.pomoku.inventorymanagementapp.filter.JwtTokenFilter;
 import pl.pomoku.inventorymanagementapp.service.UserService;
 
 import java.util.List;
@@ -22,7 +25,8 @@ import java.util.List;
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final UserService userService;
+    private final UserDetailsService userService;
+    private final JwtTokenFilter filter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -33,8 +37,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> {
                     request.requestMatchers("/api/v1/auth/**").permitAll();
                     request.requestMatchers("/api/v1/token/**").permitAll();
-                    request.anyRequest().authenticated();
+                    request.requestMatchers("/api/v1/users/**").authenticated();
                 })
+                .addFilterBefore(filter, BasicAuthenticationFilter.class)
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(
                         request -> {
@@ -43,7 +48,7 @@ public class SecurityConfig {
                             config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                             config.setAllowCredentials(true);
                             config.addAllowedHeader("*");
-                            config.setExposedHeaders(List.of("Authorization", "Cache-Control", "Content-Type", "Access-Control-Allow-Origin"));
+                            config.setExposedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
                             return config;
                         }
                 ))

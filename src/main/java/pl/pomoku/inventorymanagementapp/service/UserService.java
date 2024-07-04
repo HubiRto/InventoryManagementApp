@@ -1,6 +1,8 @@
 package pl.pomoku.inventorymanagementapp.service;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,6 +14,7 @@ import pl.pomoku.inventorymanagementapp.repository.UserRepository;
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final JwtService jwtService;
 
@@ -26,6 +29,7 @@ public class UserService implements UserDetailsService {
 
     public User findUserByToken(String token) {
         String email = jwtService.extractUsername(token);
+        log.warn("User with email {} found", email);
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(email));
     }

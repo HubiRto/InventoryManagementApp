@@ -68,7 +68,7 @@ public class AuthService {
 
     public AuthResponse authenticate(AuthRequest request) {
         var user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(request.email()));
         var auth = authenticationManager.authenticate(buildAuthToken(request));
 
         if (auth.isAuthenticated()) {
