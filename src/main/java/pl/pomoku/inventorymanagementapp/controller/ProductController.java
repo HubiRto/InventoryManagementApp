@@ -21,44 +21,44 @@ import java.util.List;
 public class ProductController {
     private final ProductService productService;
 
-    @GetMapping
-    public List<ProductResponse> getAllProducts() {
-        return productService.getAllProducts().stream().map(Product::mapToDto).toList();
-    }
-
-    @GetMapping("/{productId}")
-    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long productId) {
-        return ResponseEntity.ok(productService.getProductById(productId).mapToDto());
-    }
-
-    @PostMapping("/add")
-    public ResponseEntity<ProductResponse> addProduct(@RequestBody AddProductRequest request) {
-        return new ResponseEntity<>(productService.saveProduct(request).mapToDto(), HttpStatus.CREATED);
-    }
-
-    @DeleteMapping("/{productId}")
-    public ResponseEntity<String> deleteProduct(@PathVariable Long productId) {
-        productService.deleteProduct(productId);
-        return new ResponseEntity<>(String.format("Product with id: %s successfully deleted", productId), HttpStatus.OK);
-    }
-
-    @PostMapping("/{productId}/image")
-    public ResponseEntity<String> uploadImage(@PathVariable Long productId, @RequestParam("image") MultipartFile imageFile) {
-        try {
-            productService.saveProductImage(productId, imageFile);
-            return ResponseEntity.ok("Image uploaded successfully");
-        } catch (IOException e) {
-            throw new AppException("Failed to upload image", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping(value = "/{productId}/image")
-    public ResponseEntity<byte[]> getProductImage(@PathVariable Long productId) {
-        try {
-            byte[] imageData = productService.getProductImage(productId);
-            return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(imageData);
-        } catch (IOException e) {
-            throw new AppException("Failed to retrieve image", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @GetMapping
+//    public List<ProductResponse> getAllProducts() {
+//        return productService.getAllProducts().stream().map(Product::mapToDto).toList();
+//    }
+//
+//    @GetMapping("/{productId}")
+//    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long productId) {
+//        return ResponseEntity.ok(productService.getProductById(productId).mapToDto());
+//    }
+//
+//    @PostMapping("/add")
+//    public ResponseEntity<ProductResponse> addProduct(@RequestBody AddProductRequest request) {
+//        return new ResponseEntity<>(productService.saveProduct(request).mapToDto(), HttpStatus.CREATED);
+//    }
+//
+//    @DeleteMapping("/{productId}")
+//    public ResponseEntity<String> deleteProduct(@PathVariable Long productId) {
+//        productService.deleteProduct(productId);
+//        return new ResponseEntity<>(String.format("Product with id: %s successfully deleted", productId), HttpStatus.OK);
+//    }
+//
+//    @PostMapping("/{productId}/image")
+//    public ResponseEntity<String> uploadImage(@PathVariable Long productId, @RequestParam("image") MultipartFile imageFile) {
+//        try {
+//            productService.saveProductImage(productId, imageFile);
+//            return ResponseEntity.ok("Image uploaded successfully");
+//        } catch (IOException e) {
+//            throw new AppException("Failed to upload image", HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+//
+//    @GetMapping(value = "/{productId}/image")
+//    public ResponseEntity<byte[]> getProductImage(@PathVariable Long productId) {
+//        try {
+//            byte[] imageData = productService.getProductImage(productId);
+//            return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(imageData);
+//        } catch (IOException e) {
+//            throw new AppException("Failed to retrieve image", HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 }

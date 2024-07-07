@@ -54,7 +54,6 @@ export const AuthService = {
 
     fetchUserData: async (token: string): Promise<User | undefined> => {
         try {
-            console.log(token);
             const response = await axios.get<User>(`${API_URL}/users`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -82,8 +81,6 @@ export const AuthService = {
             const response = await axios.post<AuthResponse>(`${API_URL}/token/refresh-token?token=${refreshToken}`, { refreshToken });
             saveTokens(response.data);
             setAuthToken(response.data.token);
-
-            console.log('New tokens');
             return response.data;
         } catch (e) {
             console.error('Failed to refresh token', e);
@@ -93,18 +90,14 @@ export const AuthService = {
 
     loadToken: async (): Promise<{ token: string, refreshToken: string } | null> => {
         const token = getToken();
-        console.log('Token in storage', token);
         const refreshToken = getRefreshToken();
-        console.log('Refresh Token in storage', token);
 
         if (token) {
             const isValid = await AuthService.validateToken(token);
             if (isValid) {
-                console.log('Token is valid');
                 setAuthToken(token);
                 return { token, refreshToken: refreshToken || '' };
             } else if (refreshToken) {
-                console.log('Token is invalid');
                 const newAuthState = await AuthService.refreshAuthToken(refreshToken);
                 if (newAuthState) {
                     return { token: newAuthState.token, refreshToken: newAuthState.refreshToken };

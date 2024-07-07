@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.pomoku.inventorymanagementapp.dto.request.CreateStoreRequest;
+import pl.pomoku.inventorymanagementapp.dto.request.UpdateStoreNameRequest;
 import pl.pomoku.inventorymanagementapp.entity.Store;
 import pl.pomoku.inventorymanagementapp.service.StoreService;
 
@@ -35,15 +36,17 @@ public class StoreController {
                 .map(Store::toDto).collect(Collectors.toSet()), HttpStatus.OK);
     }
 
-//    @PutMapping("/{storeId}")
-//    public ResponseEntity<?> updateStoreNameByStoreId(@PathVariable(name = "storeId") UUID storeId) {
-//        return new ResponseEntity<>(storeService.getAllStoresByUserId(userId).stream()
-//                .map(Store::toDto).collect(Collectors.toSet()), HttpStatus.OK);
-//    }
-//
-//    @DeleteMapping("/{storeId}")
-//    public ResponseEntity<?> updateStoreNameByStoreId(@PathVariable(name = "storeId") UUID storeId) {
-//        return new ResponseEntity<>(storeService.getAllStoresByUserId(userId).stream()
-//                .map(Store::toDto).collect(Collectors.toSet()), HttpStatus.OK);
-//    }
+    @PatchMapping("/{storeId}")
+    public ResponseEntity<?> updateStoreNameByStoreId(
+            @PathVariable(name = "storeId") UUID storeId,
+            @RequestBody UpdateStoreNameRequest request
+            ) {
+        return new ResponseEntity<>(storeService.updateName(storeId, request.newStoreName()).toDto(), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{storeId}")
+    public ResponseEntity<?> updateStoreNameByStoreId(@PathVariable(name = "storeId") UUID storeId) {
+        storeService.deleteById(storeId);
+        return new ResponseEntity<>("Store successfully deleted", HttpStatus.OK);
+    }
 }

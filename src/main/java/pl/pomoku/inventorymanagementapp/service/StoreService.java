@@ -1,11 +1,13 @@
 package pl.pomoku.inventorymanagementapp.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.pomoku.inventorymanagementapp.dto.request.CreateStoreRequest;
 import pl.pomoku.inventorymanagementapp.entity.Store;
 import pl.pomoku.inventorymanagementapp.entity.User;
 import pl.pomoku.inventorymanagementapp.exception.StoreAlreadyExistException;
+import pl.pomoku.inventorymanagementapp.exception.StoreNameRequiredException;
 import pl.pomoku.inventorymanagementapp.exception.StoreNotFoundException;
 import pl.pomoku.inventorymanagementapp.exception.UserNotFoundException;
 import pl.pomoku.inventorymanagementapp.repository.StoreRepository;
@@ -50,11 +52,18 @@ public class StoreService {
     }
 
     public Store updateName(UUID uuid, String name) {
+        if(name == null || name.isBlank()) {
+            throw new StoreNameRequiredException();
+        }
+
         Store store = storeRepository.findById(uuid).orElseThrow(() -> new StoreNotFoundException(uuid));
         store.setName(name);
-        store.setUpdatedAt(LocalDateTime.now());
         return storeRepository.save(store);
     }
 
-
+    @Transactional
+    public void deleteById(UUID uuid) {
+        Store store = storeRepository.findById(uuid).orElseThrow(() -> new StoreNotFoundException(uuid));
+        storeRepository.delete(store);
+    }
 }

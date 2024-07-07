@@ -10,4 +10,8 @@ public class CategoryNotFoundException extends AppException {
     public CategoryNotFoundException(String name) {
         super(String.format("Category with name: %s not found", name), HttpStatus.NOT_FOUND);
     }
+
+    public CategoryNotFoundException() {
+        super("Category not found", HttpStatus.NOT_FOUND);
+    }
 }

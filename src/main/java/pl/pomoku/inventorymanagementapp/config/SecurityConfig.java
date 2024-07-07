@@ -37,7 +37,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> {
                     request.requestMatchers("/api/v1/auth/**").permitAll();
                     request.requestMatchers("/api/v1/token/**").permitAll();
-                    request.requestMatchers("/api/v1/users/**").authenticated();
+                    request.requestMatchers("/api/v1/billboards/**").authenticated();
+                    request.anyRequest().authenticated();
                 })
                 .addFilterBefore(filter, BasicAuthenticationFilter.class)
                 .csrf(AbstractHttpConfigurer::disable)
@@ -45,7 +46,7 @@ public class SecurityConfig {
                         request -> {
                             CorsConfiguration config = new CorsConfiguration();
                             config.addAllowedOriginPattern("*");
-                            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
                             config.setAllowCredentials(true);
                             config.addAllowedHeader("*");
                             config.setExposedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));

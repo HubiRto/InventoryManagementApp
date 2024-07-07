@@ -14,7 +14,6 @@ import pl.pomoku.inventorymanagementapp.repository.UserRepository;
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
-    private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final JwtService jwtService;
 
@@ -29,7 +28,6 @@ public class UserService implements UserDetailsService {
 
     public User findUserByToken(String token) {
         String email = jwtService.extractUsername(token);
-        log.warn("User with email {} found", email);
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(email));
     }

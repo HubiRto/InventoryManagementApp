@@ -1,11 +1,11 @@
-// components/ProtectedRoute.tsx
+// src/wrapper/ProtectedRouteWrapper.tsx
 
 import React from 'react';
-import {useAuth} from "@/providers/AuthContext";
+import {useAuth} from "@/providers/AuthContext.tsx";
 import {Navigate, useLocation} from "react-router-dom";
 import {Spinner} from "@/components/Spinner.tsx";
 
-const ProtectedRoute = ({children}: { children: React.ReactNode }) => {
+const ProtectedRouteWrapper = ({children}: { children: React.ReactNode }) => {
     const location = useLocation();
     const {authState, isLoading} = useAuth();
 
@@ -28,4 +28,4 @@ const ProtectedRoute = ({children}: { children: React.ReactNode }) => {
     return <>{children}</>
 };
 
-export default ProtectedRoute;
+export default ProtectedRouteWrapper;

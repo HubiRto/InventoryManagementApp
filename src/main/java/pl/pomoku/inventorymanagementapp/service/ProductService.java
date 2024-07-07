@@ -23,58 +23,58 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ProductService {
-    private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
-    private final ProductImageRepository productImageRepository;
-
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
-    }
-
-    public Product getProductById(Long id) {
-        return productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
-    }
-
-    public Product saveProduct(AddProductRequest request) {
-        if (productRepository.existsByName(request.name())) {
-            throw new ProductAlreadyExistException();
-        }
-
-        Category category = categoryRepository.findById(request.categoryId())
-                .orElseThrow(() -> new CategoryNotFoundException(request.categoryId()));
-
-        return productRepository.save(request.mapToEntity(category));
-    }
-
-    @Transactional
-    public void deleteProduct(Long id) {
-        if(!productRepository.existsById(id)){
-            throw new ProductNotFoundException(id);
-        }
-        productRepository.deleteById(id);
-    }
-
-    @Transactional
-    public void saveProductImage(Long id, MultipartFile file) throws IOException {
-        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
-        ProductImage productImage = productImageRepository.findByProductId(id).orElseGet(ProductImage::new);
-
-        productImage.setName(file.getOriginalFilename());
-        productImage.setType(file.getContentType());
-        productImage.setImage(ImageUtils.compressImage(file.getBytes()));
-        productImage.setProduct(product);
-        productImage = productImageRepository.save(productImage);
-
-        product.setImage(productImage);
-        productRepository.save(product);
-    }
-
-    public byte[] getProductImage(Long id) throws IOException {
-        if (!productImageRepository.existsById(id)) {
-            throw new ProductNotFoundException(id);
-        }
-
-        return ImageUtils.decompressImage(productImageRepository.findById(id)
-                .orElseThrow(ProductImageNotFoundException::new).getImage());
-    }
+//    private final ProductRepository productRepository;
+//    private final CategoryRepository categoryRepository;
+//    private final ProductImageRepository productImageRepository;
+//
+//    public List<Product> getAllProducts() {
+//        return productRepository.findAll();
+//    }
+//
+//    public Product getProductById(Long id) {
+//        return productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
+//    }
+//
+//    public Product saveProduct(AddProductRequest request) {
+//        if (productRepository.existsByName(request.name())) {
+//            throw new ProductAlreadyExistException();
+//        }
+//
+//        Category category = categoryRepository.findById(request.categoryId().)
+//                .orElseThrow(() -> new CategoryNotFoundException(request.categoryId()));
+//
+//        return productRepository.save(request.mapToEntity(category));
+//    }
+//
+//    @Transactional
+//    public void deleteProduct(Long id) {
+//        if(!productRepository.existsById(id)){
+//            throw new ProductNotFoundException(id);
+//        }
+//        productRepository.deleteById(id);
+//    }
+//
+//    @Transactional
+//    public void saveProductImage(Long id, MultipartFile file) throws IOException {
+//        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
+//        ProductImage productImage = productImageRepository.findByProductId(id).orElseGet(ProductImage::new);
+//
+//        productImage.setName(file.getOriginalFilename());
+//        productImage.setType(file.getContentType());
+//        productImage.setImage(ImageUtils.compressImage(file.getBytes()));
+//        productImage.setProduct(product);
+//        productImage = productImageRepository.save(productImage);
+//
+//        product.setImage(productImage);
+//        productRepository.save(product);
+//    }
+//
+//    public byte[] getProductImage(Long id) throws IOException {
+//        if (!productImageRepository.existsById(id)) {
+//            throw new ProductNotFoundException(id);
+//        }
+//
+//        return ImageUtils.decompressImage(productImageRepository.findById(id)
+//                .orElseThrow(ProductImageNotFoundException::new).getImage());
+//    }
 }

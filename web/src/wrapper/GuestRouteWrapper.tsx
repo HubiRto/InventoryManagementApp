@@ -1,10 +1,10 @@
-// src/routes/GuestRoute.tsx
+// src/wrapper/GuestRouteWrapper.tsx
 import React from 'react';
-import {useAuth} from "@/providers/AuthContext";
+import {useAuth} from "@/providers/AuthContext.tsx";
 import {Navigate, useLocation} from "react-router-dom";
 import {Spinner} from "@/components/Spinner.tsx";
 
-const GuestRoute = ({children}: { children: React.ReactNode }) => {
+const GuestRouteWrapper = ({children}: { children: React.ReactNode }) => {
     const location = useLocation();
     const {authState, isLoading} = useAuth();
 
@@ -23,4 +23,4 @@ const GuestRoute = ({children}: { children: React.ReactNode }) => {
     return <>{children}</>
 };
 
-export default GuestRoute;
+export default GuestRouteWrapper;

@@ -68,8 +68,8 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Order> orders;
 
-    @OneToMany(mappedBy = "user")
-    private List<Store> products;
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Store> stores;
 
     public User(String firstName, String lastName, String email, String password, Role role) {
         this.firstName = firstName;
