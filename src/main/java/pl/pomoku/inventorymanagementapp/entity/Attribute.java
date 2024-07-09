@@ -19,4 +19,8 @@ public class Attribute {
 
     @Column(nullable = false, unique = true)
     private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "store_id", nullable = false)
+    private Store store;
 }

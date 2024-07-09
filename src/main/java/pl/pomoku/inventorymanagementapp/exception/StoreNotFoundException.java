@@ -8,4 +8,8 @@ public class StoreNotFoundException extends AppException {
     public StoreNotFoundException(UUID id) {
         super(String.format("Store with id: %s not found", id), HttpStatus.NOT_FOUND);
     }
+
+    public StoreNotFoundException() {
+        super("Store with this id does not exist", HttpStatus.NOT_FOUND);
+    }
 }
