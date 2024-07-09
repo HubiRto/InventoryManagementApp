@@ -2,79 +2,173 @@ package pl.pomoku.inventorymanagementapp.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import pl.pomoku.inventorymanagementapp.dto.request.AddProductRequest;
-import pl.pomoku.inventorymanagementapp.entity.Category;
-import pl.pomoku.inventorymanagementapp.entity.Product;
-import pl.pomoku.inventorymanagementapp.entity.ProductImage;
-import pl.pomoku.inventorymanagementapp.exception.CategoryNotFoundException;
-import pl.pomoku.inventorymanagementapp.exception.ProductAlreadyExistException;
-import pl.pomoku.inventorymanagementapp.exception.ProductImageNotFoundException;
-import pl.pomoku.inventorymanagementapp.exception.ProductNotFoundException;
-import pl.pomoku.inventorymanagementapp.repository.CategoryRepository;
-import pl.pomoku.inventorymanagementapp.repository.ProductImageRepository;
-import pl.pomoku.inventorymanagementapp.repository.ProductRepository;
-import pl.pomoku.inventorymanagementapp.utils.ImageUtils;
+import pl.pomoku.inventorymanagementapp.dto.request.AddProductDTO;
+import pl.pomoku.inventorymanagementapp.dto.request.UpdateProductDTO;
+import pl.pomoku.inventorymanagementapp.entity.*;
+import pl.pomoku.inventorymanagementapp.exception.AppException;
+import pl.pomoku.inventorymanagementapp.repository.*;
 
-import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService {
-//    private final ProductRepository productRepository;
-//    private final CategoryRepository categoryRepository;
-//    private final ProductImageRepository productImageRepository;
-//
-//    public List<Product> getAllProducts() {
-//        return productRepository.findAll();
-//    }
-//
-//    public Product getProductById(Long id) {
-//        return productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
-//    }
-//
-//    public Product saveProduct(AddProductRequest request) {
-//        if (productRepository.existsByName(request.name())) {
-//            throw new ProductAlreadyExistException();
-//        }
-//
-//        Category category = categoryRepository.findById(request.categoryId().)
-//                .orElseThrow(() -> new CategoryNotFoundException(request.categoryId()));
-//
-//        return productRepository.save(request.mapToEntity(category));
-//    }
-//
-//    @Transactional
-//    public void deleteProduct(Long id) {
-//        if(!productRepository.existsById(id)){
-//            throw new ProductNotFoundException(id);
-//        }
-//        productRepository.deleteById(id);
-//    }
-//
-//    @Transactional
-//    public void saveProductImage(Long id, MultipartFile file) throws IOException {
-//        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
-//        ProductImage productImage = productImageRepository.findByProductId(id).orElseGet(ProductImage::new);
-//
-//        productImage.setName(file.getOriginalFilename());
-//        productImage.setType(file.getContentType());
-//        productImage.setImage(ImageUtils.compressImage(file.getBytes()));
-//        productImage.setProduct(product);
-//        productImage = productImageRepository.save(productImage);
-//
-//        product.setImage(productImage);
-//        productRepository.save(product);
-//    }
-//
-//    public byte[] getProductImage(Long id) throws IOException {
-//        if (!productImageRepository.existsById(id)) {
-//            throw new ProductNotFoundException(id);
-//        }
-//
-//        return ImageUtils.decompressImage(productImageRepository.findById(id)
-//                .orElseThrow(ProductImageNotFoundException::new).getImage());
-//    }
+    private final ProductRepository productRepository;
+    private final StoreRepository storeRepository;
+    private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
+    private final ProducentRepository producentRepository;
+    private final AttributeRepository attributeRepository;
+    private final ProductAttributeRepository productAttributeRepository;
+
+    @Transactional
+    public Product addNewProduct(AddProductDTO request) {
+        if(productRepository.existsByName(request.getName())) {
+            throw new AppException("Product with this name already exist", HttpStatus.CONFLICT);
+        }
+
+        Category category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new AppException("Category not found", HttpStatus.NOT_FOUND));
+
+        Store store = storeRepository.findById(request.getStoreId())
+                .orElseThrow(() -> new AppException("Store not found", HttpStatus.NOT_FOUND));
+
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new AppException("User not found", HttpStatus.NOT_FOUND));
+
+        Producent producent = producentRepository.findById(request.getProducentId())
+                .orElseThrow(() -> new AppException("Producent not found", HttpStatus.NOT_FOUND));
+
+
+        Product product = new Product();
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setCategory(category);
+        product.setStore(store);
+        product.setCreatedBy(user);
+        product.setProducent(producent);
+        product.setCreatedAt(LocalDateTime.now());
+
+        product = productRepository.saveAndFlush(product);
+
+        Stock stock = new Stock();
+        stock.setQuantity(request.getQuantity());
+        stock.setProduct(product);
+
+        product.setStock(stock);
+
+        Price price = new Price();
+        price.setNetPrice(request.getNetPrice());
+        price.setVat(request.getVat());
+        price.setProduct(product);
+
+        product.setPrice(price);
+
+        Product finalProduct = product;
+        List<ProductAttribute> productAttributes = request.getAttributes().entrySet().stream()
+                .map(entry -> {
+                    Attribute attribute = attributeRepository.findByName(entry.getKey())
+                            .orElseGet(() -> {
+                                Attribute newAttribute = new Attribute();
+                                newAttribute.setName(entry.getKey());
+                                return attributeRepository.save(newAttribute);
+                            });
+
+                    return new ProductAttribute(finalProduct, attribute, entry.getValue());
+                }).toList();
+
+        product.getProductAttributes().addAll(productAttributes);
+        productAttributeRepository.saveAll(productAttributes);
+        return productRepository.save(product);
+    }
+
+    @Transactional
+    public Product updateProduct(UpdateProductDTO request, Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new AppException("Product not found", HttpStatus.NOT_FOUND));
+
+        Category category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new AppException("Category not found", HttpStatus.NOT_FOUND));
+
+        Producent producent = producentRepository.findById(request.getProducentId())
+                .orElseThrow(() -> new AppException("Producent not found", HttpStatus.NOT_FOUND));
+
+        Stock stock = product.getStock();
+        stock.setQuantity(request.getQuantity());
+
+        Price price = product.getPrice();
+        price.setNetPrice(request.getNetPrice());
+        price.setVat(request.getVat());
+
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setCategory(category);
+        product.setProducent(producent);
+
+
+        Map<String, String> attributesMap = request.getAttributes();
+        List<ProductAttribute> existingProductAttributes = product.getProductAttributes();
+
+        for (Map.Entry<String, String> entry : attributesMap.entrySet()) {
+            String attributeName = entry.getKey();
+            String attributeValue = entry.getValue();
+
+            Attribute attribute = attributeRepository.findByName(attributeName)
+                    .orElseGet(() -> {
+                        Attribute newAttribute = new Attribute();
+                        newAttribute.setName(attributeName);
+                        return attributeRepository.save(newAttribute);
+                    });
+
+            Optional<ProductAttribute> optionalProductAttribute = existingProductAttributes.stream()
+                    .filter(pa -> pa.getAttribute().equals(attribute))
+                    .findFirst();
+
+            if (optionalProductAttribute.isPresent()) {
+                //Update existing ProductAttribute
+                ProductAttribute productAttribute = optionalProductAttribute.get();
+                productAttribute.setValue(attributeValue);
+            } else {
+                //Create new ProductAttribute
+                ProductAttribute productAttribute = new ProductAttribute(product, attribute, attributeValue);
+                product.getProductAttributes().add(productAttribute);
+            }
+        }
+
+        // Remove attributes that are in the database, but are no longer in the update request
+        List<ProductAttribute> attributesToRemove = existingProductAttributes.stream()
+                .filter(pa -> !attributesMap.containsKey(pa.getAttribute().getName()))
+                .collect(Collectors.toList());
+
+        product.getProductAttributes().removeAll(attributesToRemove);
+        productAttributeRepository.deleteAll(attributesToRemove);
+
+        product.setUpdatedAt(LocalDateTime.now());
+
+        return productRepository.save(product);
+    }
+
+
+    public Product getProductById(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new AppException("Product not found", HttpStatus.NOT_FOUND));
+    }
+
+    public List<Product> getAllProductsByStoreId(UUID storeId) {
+        return productRepository.findAllByStoreId(storeId);
+    }
+
+    @Transactional
+    public void deleteByProductById(Long id) {
+        Product product = getProductById(id);
+        //Optionally delete all attributes where only have reference to one product
+        productRepository.delete(product);
+    }
 }

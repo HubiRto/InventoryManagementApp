@@ -17,11 +17,6 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"name", "user_id"})
-        }
-)
 public class Store {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -39,6 +34,9 @@ public class Store {
 
     @OneToMany(mappedBy = "store", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Category> categories;
+
+    @OneToMany(mappedBy = "store", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Product> products;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

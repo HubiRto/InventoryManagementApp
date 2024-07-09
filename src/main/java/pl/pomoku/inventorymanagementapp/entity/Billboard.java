@@ -16,11 +16,6 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"label", "store_id"})
-        }
-)
 public class Billboard {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

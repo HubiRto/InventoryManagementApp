@@ -2,11 +2,11 @@ package pl.pomoku.inventorymanagementapp.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import pl.pomoku.inventorymanagementapp.entity.ProductImage;
+import pl.pomoku.inventorymanagementapp.entity.Attribute;
 
 import java.util.Optional;
 
 @Repository
-public interface ProductImageRepository extends JpaRepository<ProductImage, Long> {
-    Optional<ProductImage> findByProductId(Long productId);
+public interface AttributeRepository extends JpaRepository<Attribute, Long> {
+    Optional<Attribute> findByName(String name);
 }

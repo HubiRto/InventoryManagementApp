@@ -18,7 +18,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import pl.pomoku.inventorymanagementapp.filter.JwtTokenFilter;
-import pl.pomoku.inventorymanagementapp.service.UserService;
 
 import java.util.List;
 
@@ -31,14 +30,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .sessionManagement(session -> {
-                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-                })
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request -> {
-                    request.requestMatchers("/api/v1/auth/**").permitAll();
-                    request.requestMatchers("/api/v1/token/**").permitAll();
-                    request.requestMatchers("/api/v1/billboards/**").authenticated();
-                    request.anyRequest().authenticated();
+//                    request.requestMatchers("/api/v1/auth/**").permitAll();
+//                    request.requestMatchers("/api/v1/token/**").permitAll();
+//                    request.requestMatchers("/api/v1/billboards/**").authenticated();
+//                    request.anyRequest().authenticated();
+
+                    request.anyRequest().permitAll();
                 })
                 .addFilterBefore(filter, BasicAuthenticationFilter.class)
                 .csrf(AbstractHttpConfigurer::disable)

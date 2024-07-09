@@ -65,11 +65,14 @@ public class User implements UserDetails {
     )
     private Set<Role> roles = new HashSet<>();
 
-    @OneToMany(mappedBy = "user")
-    private List<Order> orders;
+//    @OneToMany(mappedBy = "user")
+//    private List<Order> orders;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Store> stores;
+
+    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Product> products;
 
     public User(String firstName, String lastName, String email, String password, Role role) {
         this.firstName = firstName;
@@ -100,10 +103,6 @@ public class User implements UserDetails {
     @Override
     public String getUsername() {
         return this.email;
-    }
-
-    public String getFullName() {
-        return this.firstName + " " + this.lastName;
     }
 
     @Override
