@@ -25,6 +25,7 @@ import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
+@EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
     private final UserDetailsService userService;
     private final JwtTokenFilter filter;
@@ -34,12 +35,21 @@ public class SecurityConfig {
         return http
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request -> {
-//                    request.requestMatchers("/api/v1/auth/**").permitAll();
-//                    request.requestMatchers("/api/v1/token/**").permitAll();
-//                    request.requestMatchers("/api/v1/billboards/**").authenticated();
-//                    request.anyRequest().authenticated();
-
-                    request.anyRequest().permitAll();
+                    request.requestMatchers(
+                            "/api/v1/auth/**",
+                            "/api/v1/token/**",
+                            "/v2/api-docs",
+                            "/v3/api-docs",
+                            "/v3/api-docs/**",
+                            "/swagger-resources",
+                            "/swagger-resources/**",
+                            "/configuration/ui",
+                            "/configuration/security",
+                            "/swagger-ui/**",
+                            "/webjars/**",
+                            "/swagger-ui.html"
+                    ).permitAll();
+                    request.anyRequest().authenticated();
                 })
                 .addFilterBefore(filter, BasicAuthenticationFilter.class)
                 .csrf(AbstractHttpConfigurer::disable)
