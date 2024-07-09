@@ -8,9 +8,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import pl.pomoku.inventorymanagementapp.dto.response.UserDto;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -51,11 +50,8 @@ public class User implements UserDetails {
     @Column(name = "is_enable")
     private boolean isEnabled;
 
-    @Column(name = "profile_picture")
-    private String profilePicture;
-
     @Column(name = "created_at", nullable = false)
-    private Timestamp createdAt = new Timestamp(System.currentTimeMillis());
+    private LocalDateTime createdAt;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -65,28 +61,13 @@ public class User implements UserDetails {
     )
     private Set<Role> roles = new HashSet<>();
 
-//    @OneToMany(mappedBy = "user")
-//    private List<Order> orders;
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+    //Stores created by user
+    @OneToMany(mappedBy = "created_by", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Store> stores;
 
+    //Products created by user
     @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Product> products;
-
-    public User(String firstName, String lastName, String email, String password, Role role) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.isAccountNonExpired = true;
-        this.isAccountNonLocked = true;
-        this.isCredentialsNonExpired = true;
-        this.isEnabled = false;
-        this.profilePicture = "";
-        this.createdAt = new Timestamp(System.currentTimeMillis());
-        this.roles.add(role);
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -125,7 +106,16 @@ public class User implements UserDetails {
         return this.isEnabled;
     }
 
-    public UserDto mapToDto() {
-        return new UserDto(this.id, this.firstName, this.lastName, this.email, this.profilePicture);
+    public User(String firstName, String lastName, String email, String password, Role role) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.isAccountNonExpired = true;
+        this.isAccountNonLocked = true;
+        this.isCredentialsNonExpired = true;
+        this.isEnabled = false;
+        this.createdAt = LocalDateTime.now();
+        this.roles.add(role);
     }
 }
