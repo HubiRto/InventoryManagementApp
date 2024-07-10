@@ -18,9 +18,7 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 @SuppressWarnings("unused")
-//@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public abstract class ProductMapper {
-    private static final ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);
     @Autowired
     protected AttributeRepository attributeRepository;
 

@@ -9,7 +9,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Data
 @Entity
@@ -18,8 +17,8 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Billboard {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(nullable = false)
     private String name;
@@ -50,4 +49,8 @@ public class Billboard {
 
     @OneToMany(mappedBy = "billboard", cascade = CascadeType.PERSIST)
     private List<Category> categories;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by", nullable = false)
+    private User user;
 }

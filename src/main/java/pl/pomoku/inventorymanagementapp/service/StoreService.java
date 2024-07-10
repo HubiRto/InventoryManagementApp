@@ -3,67 +3,89 @@ package pl.pomoku.inventorymanagementapp.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import pl.pomoku.inventorymanagementapp.dto.request.CreateStoreRequest;
+import pl.pomoku.inventorymanagementapp.dto.request.CreateStoreDTO;
+import pl.pomoku.inventorymanagementapp.dto.request.UpdateStoreDTO;
+import pl.pomoku.inventorymanagementapp.entity.Event;
 import pl.pomoku.inventorymanagementapp.entity.Store;
 import pl.pomoku.inventorymanagementapp.entity.User;
-import pl.pomoku.inventorymanagementapp.exception.StoreAlreadyExistException;
-import pl.pomoku.inventorymanagementapp.exception.StoreNameRequiredException;
-import pl.pomoku.inventorymanagementapp.exception.StoreNotFoundException;
-import pl.pomoku.inventorymanagementapp.exception.UserNotFoundException;
+import pl.pomoku.inventorymanagementapp.enumerated.EventType;
+import pl.pomoku.inventorymanagementapp.exception.store.StoreAlreadyExistException;
+import pl.pomoku.inventorymanagementapp.exception.store.StoreNotFoundException;
+import pl.pomoku.inventorymanagementapp.mapper.StoreMapper;
+import pl.pomoku.inventorymanagementapp.repository.EventRepository;
 import pl.pomoku.inventorymanagementapp.repository.StoreRepository;
-import pl.pomoku.inventorymanagementapp.repository.UserRepository;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class StoreService {
     private final StoreRepository storeRepository;
-    private final UserRepository userRepository;
+    private final EventRepository eventRepository;
+    private final StoreMapper storeMapper;
 
-    public Store createStore(CreateStoreRequest request) {
-        Optional<User> optionalUser = userRepository.findById(request.userId());
-
-        if (optionalUser.isEmpty()) {
-            throw new UserNotFoundException(request.userId());
-        }
-
-        if (storeRepository.existsByNameAndUserId(request.name(), request.userId())) {
-            throw new StoreAlreadyExistException();
-        }
-
-        User user = optionalUser.get();
-        Store store = request.mapToEntity(user);
-        return storeRepository.save(store);
+    public Store getById(Long storeId) {
+        return storeRepository.findById(storeId)
+                .orElseThrow(() -> new StoreNotFoundException(storeId));
     }
 
-    public Store getById(UUID uuid) {
-        return storeRepository.findById(uuid).orElseThrow(() -> new StoreNotFoundException(uuid));
-    }
-
-    public Set<Store> getAllStoresByUserId(Long id) {
-        if(!userRepository.existsById(id)) {
-            throw new UserNotFoundException(id);
-        }
-        return storeRepository.findAllByUserId(id);
-    }
-
-    public Store updateName(UUID uuid, String name) {
-        if(name == null || name.isBlank()) {
-            throw new StoreNameRequiredException();
-        }
-
-        Store store = storeRepository.findById(uuid).orElseThrow(() -> new StoreNotFoundException(uuid));
-        store.setName(name);
-        return storeRepository.save(store);
+    public List<Store> getAllStores() {
+        return storeRepository.findAll();
     }
 
     @Transactional
-    public void deleteById(UUID uuid) {
-        Store store = storeRepository.findById(uuid).orElseThrow(() -> new StoreNotFoundException(uuid));
+    public Store createStore(CreateStoreDTO request, User user) {
+        if (storeRepository.existsByName(request.getName())) {
+            throw new StoreAlreadyExistException(request.getName());
+        }
+
+        Store store = storeMapper.mapToEntity(request);
+        store.setUser(user);
+        store = storeRepository.save(store);
+
+        Event event = new Event(
+                EventType.CREATE,
+                "Admin (%s) create store with name (%s)"
+                        .formatted(user.getFullName(), store.getName())
+        );
+        eventRepository.save(event);
+
+        return store;
+    }
+
+    @Transactional
+    public Store updateStore(UpdateStoreDTO request, User user, Long storeId) {
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new StoreNotFoundException(storeId));
+
+        if (store.getName().equals(request.getNewStoreName())) {
+            return store;
+        }
+
+        Event event = new Event(
+                EventType.UPDATE,
+                "Admin (%s) change store name from (%s) to (%s)"
+                        .formatted(user.getFullName(), store.getName(), request.getNewStoreName())
+        );
+
+        store.setName(request.getNewStoreName());
+        store = storeRepository.save(store);
+
+        eventRepository.save(event);
+
+        return store;
+    }
+
+    @Transactional
+    public void deleteById(Long storeId, User user) {
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new StoreNotFoundException(storeId));
         storeRepository.delete(store);
+
+        Event event = new Event(
+                EventType.DELETE,
+                "Admin (%s) delete store (%s)".formatted(user.getFullName(), store.getName())
+        );
+        eventRepository.save(event);
     }
 }

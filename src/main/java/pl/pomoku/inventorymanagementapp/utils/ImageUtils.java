@@ -1,7 +1,7 @@
 package pl.pomoku.inventorymanagementapp.utils;
 
-import pl.pomoku.inventorymanagementapp.exception.ImageCompressionException;
-import pl.pomoku.inventorymanagementapp.exception.ImageDecompressionException;
+import pl.pomoku.inventorymanagementapp.exception.image.ImageCompressionException;
+import pl.pomoku.inventorymanagementapp.exception.image.ImageDecompressionException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -20,8 +20,6 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 @SuppressWarnings("unused")
 public interface AttributeMapper {
-    AttributeMapper INSTANCE = Mappers.getMapper(AttributeMapper.class);
-
     AttributeDTO mapToDTO(Attribute entity);
     Attribute mapToEntity(CreateAttributeDTO dto);
 }

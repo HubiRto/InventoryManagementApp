@@ -4,6 +4,7 @@ package pl.pomoku.inventorymanagementapp.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -48,6 +49,12 @@ public class SecurityConfig {
                             "/webjars/**",
                             "/swagger-ui.html"
                     ).permitAll();
+
+                    request.requestMatchers(HttpMethod.GET, "/api/v1/stores", "/api/v1/stores/{storeId}").permitAll();
+                    request.requestMatchers(HttpMethod.GET, "/api/v1/category", "/api/v1/category/{categoryId}").permitAll();
+                    request.requestMatchers(HttpMethod.GET, "/api/v1/billboards", "/api/v1/billboards/names", "/api/v1/billboards/{billboardId}").permitAll();
+                    request.requestMatchers(HttpMethod.GET, "/api/v1/attribute", "/api/v1/attribute/{attributeId}").permitAll();
+
                     request.anyRequest().authenticated();
                 })
                 .addFilterBefore(filter, BasicAuthenticationFilter.class)

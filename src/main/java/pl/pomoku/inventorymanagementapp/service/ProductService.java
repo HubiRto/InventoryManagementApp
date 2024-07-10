@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import pl.pomoku.inventorymanagementapp.dto.request.AddProductDTO;
 import pl.pomoku.inventorymanagementapp.dto.request.UpdateProductDTO;
 import pl.pomoku.inventorymanagementapp.entity.*;
+import pl.pomoku.inventorymanagementapp.enumerated.EventType;
 import pl.pomoku.inventorymanagementapp.exception.AppException;
 import pl.pomoku.inventorymanagementapp.repository.*;
 
@@ -14,7 +15,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,25 +23,22 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final StoreRepository storeRepository;
     private final CategoryRepository categoryRepository;
-    private final UserRepository userRepository;
     private final ProducentRepository producentRepository;
     private final AttributeRepository attributeRepository;
     private final ProductAttributeRepository productAttributeRepository;
+    private final EventRepository eventRepository;
 
     @Transactional
-    public Product addNewProduct(AddProductDTO request) {
-        if(productRepository.existsByName(request.getName())) {
+    public Product addNewProduct(AddProductDTO request, User user, Long storeId) {
+        if (productRepository.existsByName(request.getName())) {
             throw new AppException("Product with this name already exist", HttpStatus.CONFLICT);
         }
 
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new AppException("Category not found", HttpStatus.NOT_FOUND));
 
-        Store store = storeRepository.findById(request.getStoreId())
+        Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new AppException("Store not found", HttpStatus.NOT_FOUND));
-
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new AppException("User not found", HttpStatus.NOT_FOUND));
 
         Producent producent = producentRepository.findById(request.getProducentId())
                 .orElseThrow(() -> new AppException("Producent not found", HttpStatus.NOT_FOUND));
@@ -78,6 +75,14 @@ public class ProductService {
                             .orElseGet(() -> {
                                 Attribute newAttribute = new Attribute();
                                 newAttribute.setName(entry.getKey());
+
+                                Event event = new Event(
+                                        EventType.CREATE,
+                                        "Admin (%s) create attribute with name (%s)"
+                                                .formatted(user.getFullName(), newAttribute.getName())
+                                );
+                                eventRepository.save(event);
+
                                 return attributeRepository.save(newAttribute);
                             });
 
@@ -86,11 +91,20 @@ public class ProductService {
 
         product.getProductAttributes().addAll(productAttributes);
         productAttributeRepository.saveAll(productAttributes);
+
+
+        Event event = new Event(
+                EventType.CREATE,
+                "Admin (%s) create product with name (%s)"
+                        .formatted(user.getFullName(), product.getName())
+        );
+        eventRepository.save(event);
+
         return productRepository.save(product);
     }
 
     @Transactional
-    public Product updateProduct(UpdateProductDTO request, Long productId) {
+    public Product updateProduct(UpdateProductDTO request, User user, Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException("Product not found", HttpStatus.NOT_FOUND));
 
@@ -124,6 +138,14 @@ public class ProductService {
                     .orElseGet(() -> {
                         Attribute newAttribute = new Attribute();
                         newAttribute.setName(attributeName);
+
+                        Event event = new Event(
+                                EventType.CREATE,
+                                "Admin (%s) create attribute with name (%s)"
+                                        .formatted(user.getFullName(), newAttribute.getName())
+                        );
+                        eventRepository.save(event);
+
                         return attributeRepository.save(newAttribute);
                     });
 
@@ -161,13 +183,21 @@ public class ProductService {
                 .orElseThrow(() -> new AppException("Product not found", HttpStatus.NOT_FOUND));
     }
 
-    public List<Product> getAllProductsByStoreId(UUID storeId) {
+    public List<Product> getAllProductsByStoreId(Long storeId) {
         return productRepository.findAllByStoreId(storeId);
     }
 
     @Transactional
-    public void deleteByProductById(Long id) {
+    public void deleteByProductById(Long id, User user) {
         Product product = getProductById(id);
+
+        Event event = new Event(
+                EventType.DELETE,
+                "Admin (%s) delete product (%s)".formatted(user.getFullName(), product.getName())
+        );
+        eventRepository.save(event);
+
+
         //Optionally delete all attributes where only have reference to one product
         productRepository.delete(product);
     }

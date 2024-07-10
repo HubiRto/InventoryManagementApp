@@ -65,6 +65,18 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "created_by", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Store> stores;
 
+    //Categories created by user
+    @OneToMany(mappedBy = "created_by", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Category> categories;
+
+    //Billboards created by user
+    @OneToMany(mappedBy = "created_by", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.PERSIST)
+    private List<Billboard> billboards;
+
+    //Attributes created by user
+    @OneToMany(mappedBy = "created_by", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.PERSIST)
+    private List<Attribute> attributes;
+
     //Products created by user
     @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Product> products;
@@ -74,6 +86,10 @@ public class User implements UserDetails {
         return this.roles.stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toList());
+    }
+
+    public String getFullName() {
+        return firstName + " " + lastName;
     }
 
     @Override
@@ -104,18 +120,5 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return this.isEnabled;
-    }
-
-    public User(String firstName, String lastName, String email, String password, Role role) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.isAccountNonExpired = true;
-        this.isAccountNonLocked = true;
-        this.isCredentialsNonExpired = true;
-        this.isEnabled = false;
-        this.createdAt = LocalDateTime.now();
-        this.roles.add(role);
     }
 }

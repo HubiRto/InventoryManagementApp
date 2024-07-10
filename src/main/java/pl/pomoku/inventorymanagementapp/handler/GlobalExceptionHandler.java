@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import pl.pomoku.inventorymanagementapp.dto.response.ErrorResponse;
 import pl.pomoku.inventorymanagementapp.exception.AppException;
 
@@ -23,5 +24,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(new ErrorResponse("Invalid email or password", LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<String> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String error = "Invalid parameter type: " + ex.getValue() + " should be of type " + ex.getRequiredType().getSimpleName();
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 }

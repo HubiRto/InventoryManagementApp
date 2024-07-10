@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface BillboardRepository extends JpaRepository<Billboard, UUID> {
-    List<Billboard> findAllByStoreId(UUID storeId);
+public interface BillboardRepository extends JpaRepository<Billboard, Long> {
+    List<Billboard> findAllByStoreId(Long storeId);
+    boolean existsByLabel(String label);
 }
