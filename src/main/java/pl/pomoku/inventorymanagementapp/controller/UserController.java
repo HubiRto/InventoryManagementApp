@@ -34,7 +34,7 @@ public class UserController {
     }
 
     @Secured("ADMIN")
-    @GetMapping("{userId}")
+    @GetMapping("/{userId}")
     public UserDTO getUserById(
             @NotNull(message = "User ID cannot be null")
             @Min(value = 1, message = "User ID must be a non-negative number")
@@ -43,14 +43,14 @@ public class UserController {
         return userMapper.userToUserDTO(userService.getUserById(userId));
     }
 
-    @Secured("ADMIN")
-    @GetMapping
-    public UserDTO getUserByEmail(
-            @NotNull(message = "User email cannot be null")
-            @NotEmpty(message = "User email cannot be empty")
-            @Email(message = "Invalid email format")
-            @RequestParam("email") String email
-    ) {
-        return userMapper.userToUserDTO(userService.getUserByEmail(email));
-    }
+//    @Secured("ADMIN")
+//    @GetMapping
+//    public UserDTO getUserByEmail(
+//            @NotNull(message = "User email cannot be null")
+//            @NotEmpty(message = "User email cannot be empty")
+//            @Email(message = "Invalid email format")
+//            @RequestParam("email") String email
+//    ) {
+//        return userMapper.userToUserDTO(userService.getUserByEmail(email));
+//    }
 }

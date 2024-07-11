@@ -19,13 +19,7 @@ const BillboardsPage = () => {
         const fetchBillboards = async () => {
             try {
                 const response = await axios.get<Billboard[]>(
-                    `http://localhost:8080/api/v1/billboards?storeId=${storeId}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${authState?.token}`,
-                        },
-                    }
-                );
+                    `http://localhost:8080/api/v1/billboards?storeId=${storeId}`);
                 setBillboards(response.data);
             } catch (error: any) {
                 console.log(error);

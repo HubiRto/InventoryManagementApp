@@ -32,6 +32,7 @@ public class BillboardService {
     private final StoreRepository storeRepository;
     private final EventRepository eventRepository;
 
+    @Transactional
     public List<Billboard> getAllBillboards(Long storeId) {
         if (!storeRepository.existsById(storeId)) {
             throw new StoreNotFoundException(storeId);
@@ -118,6 +119,7 @@ public class BillboardService {
                 .label(label)
                 .image(ImageUtils.compressImage(file.getBytes()))
                 .createdAt(LocalDateTime.now())
+                .createdBy(user)
                 .build();
 
         billboard = billboardRepository.save(billboard);

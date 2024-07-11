@@ -12,13 +12,13 @@ interface CheckStoresProps {
 
 const FindFirstStoreWrapper: React.FC<CheckStoresProps> = ({children}) => {
     const navigate = useNavigate();
-    const {authState, user} = useAuth();
+    const {authState} = useAuth();
 
     useEffect(() => {
         const checkStores = async () => {
             try {
                 const response = await axios.get<Store[]>(
-                    `http://localhost:8080/api/v1/stores?userId=${user?.id}`,
+                    `http://localhost:8080/api/v1/stores`,
                     {
                         headers: {
                             Authorization: `Bearer ${authState?.token}`,
@@ -27,6 +27,8 @@ const FindFirstStoreWrapper: React.FC<CheckStoresProps> = ({children}) => {
 
                 if (response.data.length > 0) {
                     navigate(`/dashboard/${response.data[0].id}`);
+                }else {
+                    return
                 }
             } catch (error) {
                 navigate('/login');

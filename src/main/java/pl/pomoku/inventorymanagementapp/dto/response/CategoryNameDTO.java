@@ -10,13 +10,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CategoryDTO {
+public class CategoryNameDTO {
     private Long id;
     private String name;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private Long billboardId;
-    private String billboardLabel;
-    private Long parentId;
-    private List<CategoryDTO> children;
 }

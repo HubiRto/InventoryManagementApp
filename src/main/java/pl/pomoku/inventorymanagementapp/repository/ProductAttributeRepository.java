@@ -9,5 +9,4 @@ import pl.pomoku.inventorymanagementapp.entity.ProductAttribute;
 public interface ProductAttributeRepository extends JpaRepository<ProductAttribute, Long> {
     @Query("SELECT COUNT(pa) FROM ProductAttribute pa WHERE pa.attribute.id = :attributeId")
     Long countByAttributeId(Long attributeId);
-    void deleteByAttributeId(Long attributeId);
 }

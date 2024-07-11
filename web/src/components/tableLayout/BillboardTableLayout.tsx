@@ -2,7 +2,7 @@ import {ColumnDef} from "@tanstack/react-table";
 import {BillboardCellAction} from "@/components/cellAction/BillboardCellAction.tsx";
 
 export type BillboardColumn = {
-    id: string;
+    id: number;
     label: string;
     createdAt: string;
 }

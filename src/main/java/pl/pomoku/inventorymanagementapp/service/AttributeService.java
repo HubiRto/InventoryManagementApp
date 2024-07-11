@@ -42,7 +42,7 @@ public class AttributeService {
 
         Attribute attribute = attributeMapper.mapToEntity(request);
         attribute.setStore(store);
-        attribute.setUser(user);
+        attribute.setCreatedBy(user);
 
         Event event = new Event(
                 EventType.CREATE,

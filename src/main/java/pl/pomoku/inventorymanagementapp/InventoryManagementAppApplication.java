@@ -80,11 +80,13 @@ public class InventoryManagementAppApplication {
 
                         return Store.builder()
                                 .name("Budex")
-                                .user(user)
+                                .createdBy(user)
                                 .createdAt(LocalDateTime.now())
                                 .build();
 
                     });
+
+            storeRepository.save(store);
         };
     }
 }

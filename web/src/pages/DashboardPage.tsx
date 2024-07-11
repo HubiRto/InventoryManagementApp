@@ -18,12 +18,7 @@ const DashboardPage = () => {
             try {
                 setLoading(true);
                 const response = await axios.get<Store>(
-                    `http://localhost:8080/api/v1/stores/${storeId}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${authState?.token}`,
-                        },
-                    });
+                    `http://localhost:8080/api/v1/stores/${storeId}`);
                 setStore(response.data)
             } catch (error: any) {
                 navigate('/')

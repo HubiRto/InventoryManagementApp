@@ -68,7 +68,7 @@ export const AuthService = {
 
     validateToken: async (token: string): Promise<boolean> => {
         try {
-            const response = await axios.post(`${API_URL}/token/validate-token?token=${token}`);
+            const response = await axios.post(`${API_URL}/auth/token/validate-token?token=${token}`);
             return response.data;
         } catch (e) {
             console.error('Failed to validate token', e);
@@ -78,7 +78,7 @@ export const AuthService = {
 
     refreshAuthToken: async (refreshToken: string): Promise<AuthResponse | null> => {
         try {
-            const response = await axios.post<AuthResponse>(`${API_URL}/token/refresh-token?token=${refreshToken}`, { refreshToken });
+            const response = await axios.post<AuthResponse>(`${API_URL}/auth/token/refresh-token?token=${refreshToken}`, { refreshToken });
             saveTokens(response.data);
             setAuthToken(response.data.token);
             return response.data;

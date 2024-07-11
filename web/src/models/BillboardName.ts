@@ -1,4 +1,4 @@
 export interface BillboardName {
-    id: string;
+    id: number;
     label: string;
 }

@@ -19,12 +19,7 @@ const BillboardPage = () => {
                 try {
                     setLoading(true);
                     const response = await axios.get<Billboard>(
-                        `http://localhost:8080/api/v1/billboards/${billboardId}`,
-                        {
-                            headers: {
-                                Authorization: `Bearer ${authState?.token}`,
-                            },
-                        });
+                        `http://localhost:8080/api/v1/billboards/${billboardId}`);
                     setBillboard(response.data)
                 } catch (error: any) {
                     if (error.response && error.response.status === 404) {

@@ -15,6 +15,7 @@ import pl.pomoku.inventorymanagementapp.mapper.StoreMapper;
 import pl.pomoku.inventorymanagementapp.repository.EventRepository;
 import pl.pomoku.inventorymanagementapp.repository.StoreRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -40,7 +41,8 @@ public class StoreService {
         }
 
         Store store = storeMapper.mapToEntity(request);
-        store.setUser(user);
+        store.setCreatedBy(user);
+        store.setCreatedAt(LocalDateTime.now());
         store = storeRepository.save(store);
 
         Event event = new Event(

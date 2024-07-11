@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> {
                     request.requestMatchers(
                             "/api/v1/auth/**",
-                            "/api/v1/token/**",
+                            "/api/v1/auth/token/**",
                             "/v2/api-docs",
                             "/v3/api-docs",
                             "/v3/api-docs/**",
@@ -51,9 +51,10 @@ public class SecurityConfig {
                     ).permitAll();
 
                     request.requestMatchers(HttpMethod.GET, "/api/v1/stores", "/api/v1/stores/{storeId}").permitAll();
-                    request.requestMatchers(HttpMethod.GET, "/api/v1/category", "/api/v1/category/{categoryId}").permitAll();
+                    request.requestMatchers(HttpMethod.GET, "/api/v1/categories","/api/v1/categories/names", "/api/v1/categories/{categoryId}").permitAll();
                     request.requestMatchers(HttpMethod.GET, "/api/v1/billboards", "/api/v1/billboards/names", "/api/v1/billboards/{billboardId}").permitAll();
                     request.requestMatchers(HttpMethod.GET, "/api/v1/attribute", "/api/v1/attribute/{attributeId}").permitAll();
+                    request.requestMatchers(HttpMethod.GET, "/api/v1/products", "/api/v1/products/{productId}").permitAll();
 
                     request.anyRequest().authenticated();
                 })

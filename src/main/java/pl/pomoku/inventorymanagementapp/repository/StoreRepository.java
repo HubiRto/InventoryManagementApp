@@ -10,8 +10,6 @@ import java.util.UUID;
 
 @Repository
 public interface StoreRepository extends JpaRepository<Store, Long> {
-    boolean existsByNameAndUserId(String name, Long userId);
     boolean existsByName(String name);
-    Set<Store> findAllByUserId(Long userId);
     Optional<Store> findByName(String name);
 }

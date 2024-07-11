@@ -48,7 +48,7 @@ public class StoreController {
         );
     }
 
-    @Secured("ADMIN")
+    /*@Secured("ADMIN")*/
     @PostMapping
     public ResponseEntity<StoreDTO> createStore(
             @NotNull(message = "Token cannot be null")

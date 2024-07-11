@@ -17,6 +17,7 @@ import pl.pomoku.inventorymanagementapp.repository.CategoryRepository;
 import pl.pomoku.inventorymanagementapp.repository.EventRepository;
 import pl.pomoku.inventorymanagementapp.repository.StoreRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -31,10 +32,16 @@ public class CategoryService {
     private final EventRepository eventRepository;
 
 
-    public List<Category> getAllCategoriesByStoreId(Long storeId) {
+    public List<Category> getAllCategoriesByStoreIdByTree(Long storeId) {
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new StoreNotFoundException(storeId));
         return categoryRepository.findAllWithoutParentByStoreId(store.getId());
+    }
+
+    public List<Category> getAllCategoriesByStoreId(Long storeId) {
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new StoreNotFoundException(storeId));
+        return categoryRepository.findAllByStoreId(store.getId());
     }
 
     public Category getCategoryById(Long categoryId) {
@@ -52,8 +59,9 @@ public class CategoryService {
                 .orElseThrow(() -> new StoreNotFoundException(storeId));
 
         Category category = categoryMapper.mapToEntity(request);
+        category.setCreatedAt(LocalDateTime.now());
         category.setStore(store);
-        category.setUser(user);
+        category.setCreatedBy(user);
 
         Event event = new Event(
                 EventType.CREATE,

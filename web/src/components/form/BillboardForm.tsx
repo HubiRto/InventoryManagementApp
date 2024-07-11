@@ -119,6 +119,10 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({initialData}) => {
             } catch (error: any) {
                 if (error.response && error.response.status === 404) {
                     navigate('/');
+                } else if (error.response && error.response.status === 409) {
+                    if(error.response.data.error.includes('label')) {
+                        form.setError('label', {message: 'Billboard with this label already exist'})
+                    }
                 } else {
                     toast.error("Failed to create billboard.");
                 }
@@ -179,19 +183,23 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({initialData}) => {
 
     return (
         <>
-            <UploadImageModal isOpen={openUploadModal} onClose={() => setOpenUploadModal(false)} onImageChange={handleImageChange}/>
-            <AlertModal isOpen={openDeleteModal} onClose={() => setOpenDeleteModal(false)} onConfirm={() => onDelete()} loading={loading}/>
+            <UploadImageModal isOpen={openUploadModal} onClose={() => setOpenUploadModal(false)}
+                              onImageChange={handleImageChange}/>
+            <AlertModal isOpen={openDeleteModal} onClose={() => setOpenDeleteModal(false)} onConfirm={() => onDelete()}
+                        loading={loading}/>
             <div className="flex items-center justify-between">
                 <Heading title={title} description={description}/>
                 {initialData && (
-                    <Button disabled={loading} variant="destructive" size="icon" onClick={() => setOpenDeleteModal(true)}>
+                    <Button disabled={loading} variant="destructive" size="icon"
+                            onClick={() => setOpenDeleteModal(true)}>
                         <Trash className="h-4 w-4"/>
                     </Button>
                 )}
             </div>
             <Separator/>
             <Form {...form}>
-                <form onSubmit={() => {}} className="space-y-8 w-full">
+                <form onSubmit={() => {
+                }} className="space-y-8 w-full">
                     <div className="grid grid-cols-3 gap-8">
                         <FormField
                             control={form.control}

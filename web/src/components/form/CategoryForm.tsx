@@ -16,20 +16,23 @@ import toast from "react-hot-toast";
 import {Category} from "@/models/Category.ts";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
 import {BillboardName} from "@/models/BillboardName.ts";
+import {CategoryName} from "@/models/CategoryName.ts";
 
 interface CategoryFormProps {
     initialData: Category | null;
     billboards: BillboardName[];
+    categories: CategoryName[];
 }
 
 const formSchema = z.object({
     name: z.string().min(1),
-    billboardId: z.string().min(1),
+    billboardId: z.number().min(1),
+    categoryParentId: z.union([z.number().nullable(), z.string().transform(val => val === 'None' ? null : parseInt(val))])
 });
 
 type CategoryFormValues = z.infer<typeof formSchema>;
 
-export const CategoryForm: React.FC<CategoryFormProps> = ({initialData, billboards}) => {
+export const CategoryForm: React.FC<CategoryFormProps> = ({initialData, billboards, categories}) => {
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -47,7 +50,8 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({initialData, billboar
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: initialData?.name || '',
-            billboardId: initialData?.billboardId || ''
+            billboardId: initialData?.billboardId || undefined,
+            categoryParentId: initialData?.parentId || null
         }
     });
 
@@ -55,13 +59,14 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({initialData, billboar
         setLoading(true);
         try {
             if (!initialData) {
+                console.log(data);
                 await axios.post<Category>(`http://localhost:8080/api/v1/categories?storeId=${params.storeId}`, data, {
                     headers: {
                         Authorization: `Bearer ${authState?.token}`
                     },
                 });
             } else {
-                await axios.patch<Category>(`http://localhost:8080/api/v1/categories?categoryId=${params.categoryId}`, data, {
+                await axios.patch<Category>(`http://localhost:8080/api/v1/categories/${params.categoryId}`, data, {
                     headers: {
                         Authorization: `Bearer ${authState?.token}`
                     },
@@ -71,10 +76,15 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({initialData, billboar
             navigate(`/dashboard/${params.storeId}/categories`);
             toast.success(toastMessage);
         } catch (error: any) {
-            if(!error.response) navigate("/");
+            if (!error.response) navigate("/");
 
             if (error.response.status === 409) {
-                form.setError("name", {message: "Category with this name already exist"})
+                let errorMes = "Cannot set parent. This creates a cyclic dependency.";
+                if (error.response.data.error && error.response.data.error === errorMes) {
+                    form.setError("categoryParentId", {message: errorMes});
+                } else {
+                    form.setError("name", {message: "Category with this name already exist"})
+                }
             }
         } finally {
             setLoading(false);
@@ -154,9 +164,9 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({initialData, billboar
                                     <FormLabel>Billboard</FormLabel>
                                     <Select
                                         disabled={loading}
-                                        onValueChange={field.onChange}
-                                        value={field.value}
-                                        defaultValue={field.value}
+                                        onValueChange={(value) => field.onChange(value === 'None' ? null : parseInt(value))}
+                                        value={field.value ? field.value.toString() : 'None'}
+                                        defaultValue={field.value ? field.value.toString() : 'None'}
                                     >
                                         <FormControl>
                                             <SelectTrigger>
@@ -170,11 +180,59 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({initialData, billboar
                                             {billboards.map((billboard: BillboardName) => (
                                                 <SelectItem
                                                     key={billboard.id}
-                                                    value={billboard.id}
+                                                    value={billboard.id.toString()}
                                                 >
                                                     {billboard.label}
                                                 </SelectItem>
                                             ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage/>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="categoryParentId"
+                            render={({field}) => (
+                                <FormItem>
+                                    <FormLabel>Parent Category</FormLabel>
+                                    <Select
+                                        disabled={loading}
+                                        onValueChange={(value) => field.onChange(value === 'None' ? null : parseInt(value))}
+                                        value={field.value ? field.value.toString() : 'None'}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue
+                                                    defaultValue={field.value ? field.value.toString() : 'None'}
+                                                    aria-placeholder="Select a parent category"
+                                                />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="None">None</SelectItem>
+                                            {initialData ? (
+                                                categories
+                                                    .filter(category => parseInt(params.categoryId!) !== category.id)
+                                                    .map((category: CategoryName) => (
+                                                        <SelectItem
+                                                            key={category.id}
+                                                            value={category.id.toString()}
+                                                        >
+                                                            {category.name}
+                                                        </SelectItem>
+                                                    ))
+                                            ) : (
+                                                categories.map((category: CategoryName) => (
+                                                    <SelectItem
+                                                        key={category.id}
+                                                        value={category.id.toString()}
+                                                    >
+                                                        {category.name}
+                                                    </SelectItem>
+                                                ))
+                                            )}
                                         </SelectContent>
                                     </Select>
                                     <FormMessage/>

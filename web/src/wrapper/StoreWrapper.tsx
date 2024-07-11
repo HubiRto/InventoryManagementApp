@@ -15,22 +15,13 @@ const StoreWrapper: React.FC<StoreProps> = ({children}) => {
     const navigate = useNavigate();
     const {authState} = useAuth();
     const params = useParams();
-    const {user} = useAuth();
 
     useEffect(() => {
         const checkStore = async () => {
             try {
-                const response = await axios.get<Store>(
-                    `http://localhost:8080/api/v1/stores/${params.storeId}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${authState?.token}`,
-                        },
-                    });
-                if (response.data.userId !== user?.id) {
-                    navigate('/');
-                }
+                await axios.get<Store>(`http://localhost:8080/api/v1/stores/${params.storeId}`);
             } catch (error: any) {
+                //If store does not exist then navigate to dashboard
                 navigate('/');
             }
         };

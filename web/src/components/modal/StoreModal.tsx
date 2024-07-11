@@ -18,7 +18,7 @@ const formSchema = z.object({
 
 export const StoreModal = () => {
     const storeModal = useStoreModal();
-    const {user, authState} = useAuth();
+    const { authState} = useAuth();
     const [loading, setLoading] = useState(false);
     // const navigate = useNavigate();
 
@@ -33,8 +33,8 @@ export const StoreModal = () => {
         try {
             setLoading(true);
             const response = await axios.post<Store>(
-                'http://localhost:8080/api/v1/stores/create',
-                { name: values.name, userId: user?.id },
+                `http://localhost:8080/api/v1/stores`,
+                { name: values.name },
                 {
                     headers: {
                         Authorization: `Bearer ${authState?.token}`,
@@ -42,6 +42,7 @@ export const StoreModal = () => {
                 }
             );
             window.location.assign(`/dashboard/${response.data.id}`);
+            toast.success('Successfully create store');
             // navigate(`/dashboard/${response.data.id}`)
         } catch (error: any) {
             if (error.response && error.response.status === 409) {

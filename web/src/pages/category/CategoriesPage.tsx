@@ -19,13 +19,7 @@ const CategoriesPage = () => {
         const fetchCategories = async () => {
             try {
                 const response = await axios.get<Category[]>(
-                    `http://localhost:8080/api/v1/categories?storeId=${storeId}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${authState?.token}`,
-                        },
-                    }
-                );
+                    `http://localhost:8080/api/v1/categories?storeId=${storeId}`);
                 setCategories(response.data);
             } catch (error: any) {
                 console.log(error);
@@ -38,14 +32,24 @@ const CategoriesPage = () => {
         fetchCategories();
     }, [storeId, authState]);
 
-    const formattedCategoriesToColumns = (categoriess: Category[]): CategoryColumn[] => {
-        return categoriess.map((item: Category) => ({
-            id: item.id,
-            name: item.name,
-            billboardLabel: item.billboardLabel !== null ? item.billboardLabel! : 'Empty',
-            createdAt: format(item.createdAt, "MMMM do, yyyy")
-        }));
-    }
+    const formattedCategoriesToColumns = (categories: Category[]): CategoryColumn[] => {
+        const processCategory = (category: Category, parentName: string): CategoryColumn[] => {
+            const fullName = parentName ? `${parentName} / ${category.name}` : category.name;
+            const column: CategoryColumn = {
+                id: category.id,
+                name: fullName,
+                billboardLabel: category.billboardLabel !== null ? category.billboardLabel! : 'Empty',
+                createdAt: format(category.createdAt, "MMMM do, yyyy")
+            };
+            let childrenColumns: CategoryColumn[] = [];
+            if (category.children) {
+                childrenColumns = category.children.flatMap(child => processCategory(child, fullName));
+            }
+            return [column, ...childrenColumns];
+        };
+
+        return categories.flatMap(category => processCategory(category, ""));
+    };
 
     if (!loading && categories) {
         return (

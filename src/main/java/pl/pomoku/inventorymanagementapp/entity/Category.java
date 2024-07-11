@@ -53,5 +53,5 @@ public class Category {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
-    private User user;
+    private User createdBy;
 }

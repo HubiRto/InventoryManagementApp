@@ -1,5 +1,6 @@
 package pl.pomoku.inventorymanagementapp.controller.store;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
@@ -12,12 +13,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import pl.pomoku.inventorymanagementapp.dto.request.CreateCategoryDTO;
 import pl.pomoku.inventorymanagementapp.dto.response.CategoryDTO;
+import pl.pomoku.inventorymanagementapp.dto.response.CategoryNameDTO;
 import pl.pomoku.inventorymanagementapp.mapper.CategoryMapper;
 import pl.pomoku.inventorymanagementapp.service.CategoryService;
 import pl.pomoku.inventorymanagementapp.service.UserService;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/categories")
@@ -29,19 +30,36 @@ public class CategoryController {
     private final UserService userService;
 
     @GetMapping
+    @Transactional
     public ResponseEntity<List<CategoryDTO>> getCategoriesByStoreId(
             @NotNull(message = "Store ID cannot be null")
             @Min(value = 1, message = "Store ID must be a non-negative number")
             @RequestParam("storeId") Long storeId
     ) {
         return ResponseEntity.ok(
-                categoryService.getAllCategoriesByStoreId(storeId).stream()
+                categoryService.getAllCategoriesByStoreIdByTree(storeId).stream()
                         .map(categoryMapper::mapToDTO)
                         .toList()
         );
     }
 
+    @GetMapping("/names")
+    public ResponseEntity<List<CategoryNameDTO>> getCategoryNamesWithoutCategoryId(
+            @NotNull(message = "Store ID cannot be null")
+            @Min(value = 1, message = "Store ID must be a non-negative number")
+            @RequestParam("storeId") Long storeId
+    ) {
+
+        return ResponseEntity.ok(
+                categoryService.getAllCategoriesByStoreId(storeId).stream()
+                        .map(categoryMapper::mapToCategoryNameDTO)
+                        .toList()
+        );
+    }
+
+
     @GetMapping("/{categoryId}")
+    @Transactional
     public ResponseEntity<CategoryDTO> getCategoryById(
             @NotNull(message = "Category ID cannot be null")
             @Min(value = 1, message = "Category ID must be a non-negative number")
@@ -54,6 +72,7 @@ public class CategoryController {
 
     @Secured("ADMIN")
     @PostMapping
+    @Transactional
     public ResponseEntity<CategoryDTO> addNewCategory(
             @NotNull(message = "Store ID cannot be null")
             @Min(value = 1, message = "Store ID must be a non-negative number")
@@ -75,6 +94,7 @@ public class CategoryController {
 
     @Secured("ADMIN")
     @PatchMapping("/{categoryId}")
+    @Transactional
     public ResponseEntity<CategoryDTO> updateCategoryBy(
             @NotNull(message = "Category ID cannot be null")
             @Min(value = 1, message = "Category ID must be a non-negative number")

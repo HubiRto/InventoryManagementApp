@@ -62,19 +62,19 @@ public class User implements UserDetails {
     private Set<Role> roles = new HashSet<>();
 
     //Stores created by user
-    @OneToMany(mappedBy = "created_by", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Store> stores;
 
     //Categories created by user
-    @OneToMany(mappedBy = "created_by", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Category> categories;
 
     //Billboards created by user
-    @OneToMany(mappedBy = "created_by", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.PERSIST)
     private List<Billboard> billboards;
 
     //Attributes created by user
-    @OneToMany(mappedBy = "created_by", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.PERSIST)
     private List<Attribute> attributes;
 
     //Products created by user

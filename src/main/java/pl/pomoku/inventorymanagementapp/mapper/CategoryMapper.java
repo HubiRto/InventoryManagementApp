@@ -7,6 +7,7 @@ import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.pomoku.inventorymanagementapp.dto.request.CreateCategoryDTO;
 import pl.pomoku.inventorymanagementapp.dto.response.CategoryDTO;
+import pl.pomoku.inventorymanagementapp.dto.response.CategoryNameDTO;
 import pl.pomoku.inventorymanagementapp.entity.Billboard;
 import pl.pomoku.inventorymanagementapp.entity.Category;
 import pl.pomoku.inventorymanagementapp.exception.billboard.BillboardNotFoundException;
@@ -29,9 +30,11 @@ public abstract class CategoryMapper {
     @Mappings({
             @Mapping(source = "billboard.id", target = "billboardId"),
             @Mapping(source = "billboard.label", target = "billboardLabel"),
+            @Mapping(source = "parent.id", target = "parentId"),
             @Mapping(source = "children", target = "children", qualifiedByName = "mapChildren")
     })
     public abstract CategoryDTO mapToDTO(Category entity);
+    public abstract CategoryNameDTO mapToCategoryNameDTO(Category entity);
 
     @Mappings({
             @Mapping(source = "billboardId", target = "billboard", qualifiedByName = "mapBillboardIdToBillboard"),
@@ -53,6 +56,9 @@ public abstract class CategoryMapper {
 
     @Named("mapChildren")
     protected List<CategoryDTO> mapChildren(List<Category> children) {
+        if(children == null) {
+            return null;
+        }
         return children.stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());

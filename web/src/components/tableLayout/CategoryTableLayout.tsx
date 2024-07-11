@@ -2,7 +2,7 @@ import {ColumnDef} from "@tanstack/react-table";
 import {CategoryCellAction} from "@/components/cellAction/CategoryCellAction.tsx";
 
 export type CategoryColumn = {
-    id: string;
+    id: number;
     name: string;
     billboardLabel: string;
     createdAt: string;
