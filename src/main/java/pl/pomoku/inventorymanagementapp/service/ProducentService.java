@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.pomoku.inventorymanagementapp.dto.request.CreateProducentDTO;
 import pl.pomoku.inventorymanagementapp.dto.request.UpdateProducentDTO;
-import pl.pomoku.inventorymanagementapp.dto.response.ProducentNameDTO;
 import pl.pomoku.inventorymanagementapp.entity.Event;
 import pl.pomoku.inventorymanagementapp.entity.Producent;
 import pl.pomoku.inventorymanagementapp.entity.Store;
@@ -19,6 +18,7 @@ import pl.pomoku.inventorymanagementapp.repository.EventRepository;
 import pl.pomoku.inventorymanagementapp.repository.ProducentRepository;
 import pl.pomoku.inventorymanagementapp.repository.StoreRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -40,6 +40,7 @@ public class ProducentService {
 
         Producent producent = producentMapper.mapToEntity(request);
         producent.setStore(store);
+        producent.setCreatedAt(LocalDateTime.now());
 
         Event event = new Event(
                 EventType.CREATE,
