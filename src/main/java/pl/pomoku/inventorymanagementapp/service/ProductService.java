@@ -4,17 +4,20 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import pl.pomoku.inventorymanagementapp.dto.request.AddProductDTO;
 import pl.pomoku.inventorymanagementapp.dto.request.UpdateProductDTO;
 import pl.pomoku.inventorymanagementapp.entity.*;
 import pl.pomoku.inventorymanagementapp.enumerated.EventType;
 import pl.pomoku.inventorymanagementapp.exception.AppException;
+import pl.pomoku.inventorymanagementapp.exception.producent.ProducentNotFoundException;
+import pl.pomoku.inventorymanagementapp.exception.productImage.ProductImageNotFoundException;
 import pl.pomoku.inventorymanagementapp.repository.*;
+import pl.pomoku.inventorymanagementapp.utils.ImageUtils;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +30,7 @@ public class ProductService {
     private final AttributeRepository attributeRepository;
     private final ProductAttributeRepository productAttributeRepository;
     private final EventRepository eventRepository;
+    private final ProductImageRepository productImageRepository;
 
     @Transactional
     public Product addNewProduct(AddProductDTO request, User user, Long storeId) {
@@ -185,6 +189,120 @@ public class ProductService {
 
     public List<Product> getAllProductsByStoreId(Long storeId) {
         return productRepository.findAllByStoreId(storeId);
+    }
+
+    @Transactional
+    public List<String> getAllProductImagesById(Long productId) {
+        return productRepository.findById(productId).orElseThrow(() -> new ProducentNotFoundException(productId))
+                .getImages().stream()
+                .map(ProductImage::getImageUrl)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public ProductImage getAllProductImageByImageId(Long productImageId) {
+        return productImageRepository.findById(productImageId)
+                .orElseThrow(() -> new ProductImageNotFoundException(productImageId));
+    }
+
+    @Transactional
+    public Product addNewProductImagesById(Long productId, User user, List<MultipartFile> files) {
+        Product product = getProductById(productId);
+
+        for (MultipartFile file : files) {
+            if (file == null || file.getSize() == 0 || file.getContentType() == null) {
+                throw new AppException("File or Content Type is empty", HttpStatus.BAD_REQUEST);
+            }
+
+            try {
+                ProductImage image = ProductImage.builder()
+                        .imageUrl("http://localhost:8080/api/v1/products/%d/images".formatted(productId))
+                        .image(ImageUtils.compressImage(file.getBytes()))
+                        .fileName(file.getOriginalFilename())
+                        .fileType(file.getContentType())
+                        .product(product)
+                        .build();
+                image = productImageRepository.save(image);
+                image.setImageUrl("http://localhost:8080/api/v1/products/images/%d".formatted(image.getId()));
+                image = productImageRepository.save(image);
+
+                Event event = new Event(
+                        EventType.CREATE,
+                        "Admin (%s) create new product image (%s)".formatted(user.getFullName(), image.getFileName())
+                );
+                eventRepository.save(event);
+            } catch (IOException exception) {
+                throw new AppException("Failed to upload image", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+        product.setUpdatedAt(LocalDateTime.now());
+        return productRepository.save(product);
+    }
+
+    @Transactional
+    public Product updateProductImagesById(Long productId, User user, List<MultipartFile> files) {
+        Product product = getProductById(productId);
+
+        List<byte[]> compressedImages = new ArrayList<>();
+        for (MultipartFile file : files) {
+            if (file == null || file.getSize() == 0 || file.getContentType() == null) {
+                throw new AppException("File or Content Type is empty", HttpStatus.BAD_REQUEST);
+            }
+
+            try {
+                byte[] compressedImage = ImageUtils.compressImage(file.getBytes());
+                compressedImages.add(compressedImage);
+
+                Optional<ProductImage> existingImageOpt = product.getImages().stream()
+                        .filter(img -> Arrays.equals(img.getImage(), compressedImage))
+                        .findFirst();
+
+                ProductImage image;
+                if (existingImageOpt.isPresent()) {
+                    image = existingImageOpt.get();
+                    image.setFileType(file.getContentType());
+                } else {
+                    image = ProductImage.builder()
+                            .imageUrl("http://localhost:8080/api/v1/products/%d/images".formatted(productId))
+                            .image(compressedImage)
+                            .fileName(file.getOriginalFilename())
+                            .fileType(file.getContentType())
+                            .product(product)
+                            .build();
+                }
+                productImageRepository.save(image);
+
+                Event event = new Event(
+                        existingImageOpt.isPresent() ? EventType.UPDATE : EventType.CREATE,
+                        "Admin (%s) %s product image (%s)".formatted(
+                                user.getFullName(),
+                                existingImageOpt.isPresent() ? "updated" : "created",
+                                image.getFileName()
+                        )
+                );
+                eventRepository.save(event);
+            } catch (IOException exception) {
+                throw new AppException("Failed to upload image", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+
+        // Remove images not present in the uploaded files
+        List<ProductImage> imagesToRemove = product.getImages().stream()
+                .filter(img -> !compressedImages.contains(img.getImage()))
+                .toList();
+
+        for (ProductImage imageToRemove : imagesToRemove) {
+            productImageRepository.delete(imageToRemove);
+
+            Event event = new Event(
+                    EventType.DELETE,
+                    "Admin (%s) deleted product image (%s)".formatted(user.getFullName(), imageToRemove.getFileName())
+            );
+            eventRepository.save(event);
+        }
+
+        product.setUpdatedAt(LocalDateTime.now());
+        return productRepository.save(product);
     }
 
     @Transactional

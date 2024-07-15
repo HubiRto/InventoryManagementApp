@@ -22,16 +22,14 @@ const variantMap: Record<ApiAlertProps["variant"], BadgeProps["variant"]> = {
     authenticated: "destructive"
 };
 
-export const ApiAlert: React.FC<ApiAlertProps> = ({
-                                                      title, description, address, variant = "public"
-                                                  }) => {
+export const ApiAlert: React.FC<ApiAlertProps> = ({title, description, address, variant = "public"}) => {
     const onCopy = () => {
         navigator.clipboard.writeText(description);
         toast.success("API Route copied to the clipboard")
     }
 
     return (
-        <Alert>
+        <Alert className="mt-4">
             <Server className="h-4 w-4 my-2"/>
             <AlertTitle className="flex items-center gap-x-2">
                 <span
@@ -45,20 +43,21 @@ export const ApiAlert: React.FC<ApiAlertProps> = ({
                                     : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100"
                     }`}
                 >
-                {title}
-              </span>
+                    {title}
+                </span>
                 <Badge className="px-3 py-1 font-medium text-sm" variant={variantMap[variant]}>
                     {textMap[variant]}
                 </Badge>
             </AlertTitle>
             <AlertDescription className="mt-4 flex items-center justify-between">
-                <div className="flex-col items-center">
-                    <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
+                <div className="flex flex-col" style={{maxWidth: '80%'}}>
+                    <span
+                        className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold break-all">
                         {address}
-                    </code>
+                    </span>
                     <p className="text-gray-600 dark:text-gray-400 mt-3 ml-1">{description}</p>
                 </div>
-                <Button variant="outline" size="icon" onClick={() => onCopy()}>
+                <Button variant="outline" size="icon" onClick={onCopy}>
                     <Copy className="h-4 w-4"/>
                 </Button>
             </AlertDescription>

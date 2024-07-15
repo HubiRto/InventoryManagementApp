@@ -19,6 +19,10 @@ import BillboardsPage from "@/pages/billboard/BillboardsPage.tsx";
 import BillboardPage from "@/pages/billboard/BillboardPage.tsx";
 import CategoriesPage from "@/pages/category/CategoriesPage.tsx";
 import CategoryPage from "@/pages/category/CategoryPage.tsx";
+import ProductsPage from "@/pages/product/ProductsPage.tsx";
+import ManufacturersPage from "@/pages/manufacuter/ManufacturersPage.tsx";
+import ManufacturerPage from "@/pages/manufacuter/ManufacturerPage.tsx";
+import ProductPage from "@/pages/product/ProductPage.tsx";
 
 
 const wrapWithGuestRoute = (element: React.ReactNode) => <GuestRouteWrapper>{element}</GuestRouteWrapper>;
@@ -70,6 +74,42 @@ const routesConfig = [
     {
         path: "/dashboard/:storeId/billboards/:billboardId",
         element: <BillboardPage/>,
+        wrappers: [
+            wrapWithProtectedRoute,
+            wrapWithStoreModalRoute,
+            wrapWithStorRoute
+        ]
+    },
+    {
+        path: "/dashboard/:storeId/manufacturers",
+        element: <ManufacturersPage/>,
+        wrappers: [
+            wrapWithProtectedRoute,
+            wrapWithStoreModalRoute,
+            wrapWithStorRoute
+        ]
+    },
+    {
+        path: "/dashboard/:storeId/manufacturers/:manufacturerId",
+        element: <ManufacturerPage/>,
+        wrappers: [
+            wrapWithProtectedRoute,
+            wrapWithStoreModalRoute,
+            wrapWithStorRoute
+        ]
+    },
+    {
+        path: "/dashboard/:storeId/products",
+        element: <ProductsPage/>,
+        wrappers: [
+            wrapWithProtectedRoute,
+            wrapWithStoreModalRoute,
+            wrapWithStorRoute
+        ]
+    },
+    {
+        path: "/dashboard/:storeId/products/:productId",
+        element: <ProductPage/>,
         wrappers: [
             wrapWithProtectedRoute,
             wrapWithStoreModalRoute,

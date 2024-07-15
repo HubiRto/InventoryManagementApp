@@ -1,17 +1,14 @@
-import {useStoreModal} from "@/hooks/UseStoreModal.tsx";
-import {useEffect} from "react";
+import Navbar from "@/components/Navbar.tsx";
+import Footer from "@/components/Footer.tsx";
 
-export default function HomePage() {
-    const onOpen = useStoreModal((state) => state.onOpen);
-    const isOpen = useStoreModal((state) => state.isOpen);
-
-    useEffect(() => {
-        if(!isOpen) onOpen();
-    }, [isOpen, onOpen]);
-
+const HomePage = () => {
     return (
-        <div className="p-4">
-            Home page
-        </div>
+        <>
+            <Navbar/>
+            Strona
+            <Footer/>
+        </>
     );
 };
+
+export default HomePage;

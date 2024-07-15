@@ -1,18 +1,21 @@
 package pl.pomoku.inventorymanagementapp.dto.response;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductSummaryDTO {
+public class ProducentDTO {
     private Long id;
     private String name;
-    private Long producentId;
-    private String producentName;
-    private boolean availableInStock;
-    private double netPrice;
-    private double grossPrice;
+    private String website;
+    private String description;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

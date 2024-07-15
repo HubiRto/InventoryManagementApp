@@ -10,6 +10,7 @@ import pl.pomoku.inventorymanagementapp.dto.response.ProductDetailsDTO;
 import pl.pomoku.inventorymanagementapp.dto.response.ProductSummaryDTO;
 import pl.pomoku.inventorymanagementapp.entity.Product;
 import pl.pomoku.inventorymanagementapp.entity.ProductAttribute;
+import pl.pomoku.inventorymanagementapp.entity.ProductImage;
 import pl.pomoku.inventorymanagementapp.repository.AttributeRepository;
 
 import java.util.List;
@@ -35,9 +36,11 @@ public abstract class ProductMapper {
     @Mappings({
             @Mapping(source = "producent.id", target = "producentId"),
             @Mapping(source = "producent.name", target = "producentName"),
-            @Mapping(source = "stock.quantity", target = "availableInStock", qualifiedByName = "quantityToAvailableInStock"),
+            @Mapping(source = "category.id", target = "categoryId"),
+            @Mapping(source = "stock.quantity", target = "quantity"),
             @Mapping(source = "price.netPrice", target = "netPrice"),
             @Mapping(source = "price.grossPrice", target = "grossPrice"),
+            @Mapping(source = "images", target = "images", qualifiedByName = "productImageToUrl"),
             @Mapping(source = "price.vat", target = "vat"),
             @Mapping(source = "productAttributes", target = "attributes", qualifiedByName = "mapAttributes")
     })
@@ -46,6 +49,11 @@ public abstract class ProductMapper {
     @Named("quantityToAvailableInStock")
     protected boolean quantityToAvailableInStock(int quantity) {
         return quantity > 0;
+    }
+
+    @Named("productImageToUrl")
+    protected List<String> quantityToAvailableInStock(List<ProductImage> images) {
+        return images.stream().map(ProductImage::getImageUrl).collect(Collectors.toList());
     }
 
     @Named("mapAttributes")

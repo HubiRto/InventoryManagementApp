@@ -24,7 +24,7 @@ public class ProductImage {
     @Column(nullable = false, name = "file_type")
     private String fileType;
 
-    @Column(nullable = false, name = "image_url")
+    @Column(nullable = true, name = "image_url")
     @Formula("concat('http://localhost:8080/api/v1/products/', product_id, '/images/', id)")
     private String imageUrl;
 

@@ -29,6 +29,12 @@ public class Product {
 
     private String description;
 
+    @Column(name = "is_featured")
+    private boolean isFeatured;
+
+    @Column(name = "is_archived")
+    private boolean isArchived;
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
