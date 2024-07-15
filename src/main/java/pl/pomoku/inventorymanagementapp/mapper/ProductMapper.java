@@ -25,6 +25,7 @@ public abstract class ProductMapper {
 
 
     @Mappings({
+            @Mapping(source = "category.id", target = "categoryId"),
             @Mapping(source = "producent.id", target = "producentId"),
             @Mapping(source = "producent.name", target = "producentName"),
             @Mapping(source = "stock.quantity", target = "availableInStock", qualifiedByName = "quantityToAvailableInStock"),

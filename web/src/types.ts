@@ -19,3 +19,14 @@ export interface Category {
     parentId: number | null;
     children: Category[] | null;
 }
+
+export interface ProductSummary {
+    id: number;
+    name: string;
+    categoryId: number;
+    producentId: number;
+    producentName: string;
+    availableInStock: boolean;
+    netPrice: number;
+    grossPrice: number;
+}

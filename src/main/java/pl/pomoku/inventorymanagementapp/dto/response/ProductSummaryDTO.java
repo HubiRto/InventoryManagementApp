@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class ProductSummaryDTO {
     private Long id;
     private String name;
+    private Long categoryId;
     private Long producentId;
     private String producentName;
     private boolean availableInStock;

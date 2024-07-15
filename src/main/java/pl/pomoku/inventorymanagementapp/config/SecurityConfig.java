@@ -52,7 +52,7 @@ public class SecurityConfig {
 
                     request.requestMatchers(HttpMethod.GET, "/api/v1/stores", "/api/v1/stores/{storeId}").permitAll();
                     request.requestMatchers(HttpMethod.GET, "/api/v1/categories","/api/v1/categories/names", "/api/v1/categories/{categoryId}").permitAll();
-                    request.requestMatchers(HttpMethod.GET, "/api/v1/billboards", "/api/v1/billboards/names", "/api/v1/billboards/{billboardId}").permitAll();
+                    request.requestMatchers(HttpMethod.GET, "/api/v1/billboards", "/api/v1/billboards/names", "/api/v1/billboards/{billboardId}","/api/v1/billboards/{billboardId}/image").permitAll();
                     request.requestMatchers(HttpMethod.GET, "/api/v1/attribute", "/api/v1/attribute/{attributeId}").permitAll();
                     request.requestMatchers(HttpMethod.GET, "/api/v1/products", "/api/v1/products/{productId}", "/api/v1/products/{productId}/images", "/api/v1/products/images/{imageId}").permitAll();
                     request.requestMatchers(HttpMethod.GET, "/api/v1/producents", "/api/v1/producents/{producentId}").permitAll();
